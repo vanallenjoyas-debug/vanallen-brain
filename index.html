@@ -252,7 +252,7 @@ async function loadPosts() {
 
     document.getElementById('posts-grid').innerHTML = posts.map(function(p) {
       var comments = [];
-      try { comments = JSON.parse(p.comments_data || '[]'); } catch(e) {}
+      comments = Array.isArray(p.comments_data) ? p.comments_data : (p.comments_data ? JSON.parse(p.comments_data) : []);
       return '<div class="post-card ' + (p.excluded ? 'excluded' : '') + '" id="card-' + p.id + '">' +
         '<div class="post-meta">' +
           '<span>likes <strong>' + (p.like_count||0).toLocaleString() + '</strong></span>' +
