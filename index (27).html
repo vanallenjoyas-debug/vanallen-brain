@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Van Allen Brain</title>
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --gold: #c9a84c;
+    --gold-dim: #8a6f2e;
+    --text: #e8e0d0;
+    --text-dim: #8a8070;
+    --danger: #c0392b;
+    --success: #27ae60;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Georgia', serif; min-height: 100vh; }
+
+  /* LOGIN */
+  #login-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; flex-direction: column; gap: 24px;
+  }
+  .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 40px; width: 320px; text-align: center; }
+  .login-box h1 { color: var(--gold); font-size: 1.6rem; margin-bottom: 8px; }
+  .login-box p { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+  .login-box input { width: 100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 1rem; margin-bottom: 12px; }
+  .login-box input:focus { outline: none; border-color: var(--gold); }
+
+  /* MAIN APP */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { color: var(--gold); font-size: 1.3rem; letter-spacing: 2px; }
+  header span { color: var(--text-dim); font-size: 0.8rem; font-family: monospace; }
+
+  /* TABS */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .tab { padding: 14px 24px; cursor: pointer; color: var(--text-dim); font-size: 0.9rem; border-bottom: 2px solid transparent; transition: all 0.2s; letter-spacing: 1px; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .tab-content { display: none; padding: 24px; flex: 1; }
+  .tab-content.active { display: block; }
+
+  /* BUTTONS */
+  .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-family: 'Georgia', serif; transition: all 0.2s; }
+  .btn-gold { background: var(--gold); color: #000; font-weight: bold; }
+  .btn-gold:hover { background: #d4b05a; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.8rem; padding: 6px 12px; }
+  .btn-danger:hover { background: var(--danger); color: white; }
+  .btn-restore { background: transparent; border: 1px solid var(--success); color: var(--success); font-size: 0.8rem; padding: 6px 12px; }
+  .btn-restore:hover { background: var(--success); color: white; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* POSTS GRID */
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .toolbar label { color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 0.85rem; color: var(--text-dim); }
+  .stat-chip strong { color: var(--gold); display: block; font-size: 1.1rem; }
+
+  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .post-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: border-color 0.2s; }
+  .post-card:hover { border-color: var(--gold-dim); }
+  .post-card.excluded { opacity: 0.4; border-style: dashed; }
+  .post-card .post-meta { display: flex; gap: 12px; margin-bottom: 10px; font-size: 0.78rem; color: var(--text-dim); font-family: monospace; flex-wrap: wrap; }
+  .post-card .post-meta span strong { color: var(--text); }
+  .post-card .post-caption { font-size: 0.88rem; line-height: 1.5; color: var(--text); margin-bottom: 12px; max-height: 80px; overflow: hidden; }
+  .post-card .post-caption.expanded { max-height: none; }
+  .post-card .post-footer { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+  .post-date { font-size: 0.75rem; color: var(--text-dim); }
+  .comments-preview { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: none; }
+  .comments-preview.open { display: block; }
+  .comment-item { font-size: 0.8rem; color: var(--text-dim); padding: 4px 0; border-bottom: 1px solid var(--border); }
+
+  /* ANÁLISIS */
+  .analysis-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; white-space: pre-wrap; line-height: 1.7; font-size: 0.9rem; }
+  .analysis-box strong { color: var(--gold); }
+
+  /* COPY GENERATOR */
+  .copy-form { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+  .copy-form label { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 6px; }
+  .copy-form input, .copy-form select { width: 100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 0.95rem; margin-bottom: 16px; font-family: 'Georgia', serif; }
+  .copy-form input:focus, .copy-form select:focus { outline: none; border-color: var(--gold); }
+  .copy-result { background: var(--surface); border: 1px solid var(--gold-dim); border-radius: 10px; padding: 24px; white-space: pre-wrap; line-height: 1.8; font-size: 0.9rem; }
+
+  /* LOADER */
+  .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-left: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .msg-error { color: var(--danger); font-size: 0.85rem; margin-top: 8px; }
+  .msg-ok { color: var(--success); font-size: 0.85rem; margin-top: 8px; }
+  .empty { color: var(--text-dim); text-align: center; padding: 60px; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>VAN ALLEN BRAIN</h1>
+    <p>Análisis y creación de contenido</p>
+    <input type="password" id="pwd-input" placeholder="Contraseña" />
+    <button class="btn btn-gold" style="width:100%" onclick="login()">Entrar</button>
+    <p id="login-error" class="msg-error"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <h1>⬡ VAN ALLEN BRAIN</h1>
+    <span id="sync-status">—</span>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('posts')">POSTS</div>
+    <div class="tab" onclick="switchTab('analisis')">ANÁLISIS</div>
+    <div class="tab" onclick="switchTab('copy')">COPY</div>
+  </div>
+
+  <!-- TAB: POSTS -->
+  <div id="tab-posts" class="tab-content active">
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="syncPosts()">↓ Sincronizar Instagram</button>
+      <label>
+        <input type="checkbox" id="show-excluded" onchange="loadPosts()"> Mostrar excluidos
+      </label>
+      <span id="sync-msg"></span>
+    </div>
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="posts-grid" id="posts-grid">
+      <div class="empty">Sincronizá Instagram para ver los posts</div>
+    </div>
+  </div>
+
+  <!-- TAB: ANÁLISIS -->
+  <div id="tab-analisis" class="tab-content">
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="analyzePatterns()">Analizar patrones</button>
+      <span style="color:var(--text-dim);font-size:0.85rem">Analiza los posts activos (no excluidos)</span>
+    </div>
+    <div id="analysis-result"></div>
+  </div>
+
+  <!-- TAB: COPY -->
+  <div id="tab-copy" class="tab-content">
+    <div class="copy-form">
+      <label>Tema o símbolo</label>
+      <input type="text" id="copy-tema" placeholder="Ej: Metatron, Vegvisir, Luna llena, Mjolnir..." />
+      <label>Formato</label>
+      <select id="copy-formato">
+        <option value="feed">Feed (foto/carrusel)</option>
+        <option value="reel">Reel</option>
+        <option value="story">Story</option>
+      </select>
+      <button class="btn btn-gold" onclick="generateCopy()">Generar copy</button>
+    </div>
+    <div id="copy-result"></div>
+  </div>
+</div>
+
+<script>
+const API = 'https://TU-BACKEND.railway.app'; // ← reemplazar
+let sessionToken = null;
+
+// ─── AUTH ────────────────────────────────────────────────────────────────
+async function login() {
+  const pwd = document.getElementById('pwd-input').value;
+  const res = await fetch(`${API}/api/login`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ password: pwd })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    sessionToken = data.token;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    loadPosts();
+  } else {
+    document.getElementById('login-error').textContent = 'Contraseña incorrecta';
+  }
+}
+
+document.getElementById('pwd-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') login();
+});
+
+// ─── TABS ─────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['posts','analisis','copy'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+// ─── SYNC ─────────────────────────────────────────────────────────────────
+async function syncPosts() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = 'Sincronizando <span class="loader"></span>';
+  document.getElementById('sync-msg').textContent = '';
+  try {
+    const res = await fetch(`${API}/api/sync-posts`, { method: 'POST' });
+    const data = await res.json();
+    document.getElementById('sync-msg').innerHTML = `<span class="msg-ok">✓ ${data.synced} posts sincronizados</span>`;
+    loadPosts();
+  } catch (e) {
+    document.getElementById('sync-msg').innerHTML = `<span class="msg-error">Error: ${e.message}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↓ Sincronizar Instagram';
+  }
+}
+
+// ─── LOAD POSTS ───────────────────────────────────────────────────────────
+async function loadPosts() {
+  const showExcluded = document.getElementById('show-excluded').checked;
+  const res = await fetch(`${API}/api/posts?show_excluded=${showExcluded ? '1' : ''}`);
+  const posts = await res.json();
+
+  // Stats
+  const total = posts.filter(p => !p.excluded).length;
+  const topLikes = posts.filter(p=>!p.excluded).reduce((a,b)=>a+b.like_count,0);
+  const avgLikes = total ? Math.round(topLikes/total) : 0;
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-chip"><strong>${total}</strong> posts activos</div>
+    <div class="stat-chip"><strong>${avgLikes.toLocaleString()}</strong> likes promedio</div>
+    <div class="stat-chip"><strong>${posts.filter(p=>p.excluded).length}</strong> excluidos</div>
+  `;
+
+  if (!posts.length) {
+    document.getElementById('posts-grid').innerHTML = '<div class="empty">No hay posts. Sincronizá Instagram.</div>';
+    return;
+  }
+
+  document.getElementById('posts-grid').innerHTML = posts.map(p => `
+    <div class="post-card ${p.excluded ? 'excluded' : ''}" id="card-${p.id}">
+      <div class="post-meta">
+        <span>❤ <strong>${(p.like_count||0).toLocaleString()}</strong></span>
+        <span>💬 <strong>${(p.comments_count||0).toLocaleString()}</strong></span>
+        ${p.reach ? `<span>👁 <strong>${p.reach.toLocaleString()}</strong></span>` : ''}
+        ${p.saved ? `<span>🔖 <strong>${p.saved.toLocaleString()}</strong></span>` : ''}
+      </div>
+      <div class="post-caption ${p.caption && p.caption.length > 120 ? 'truncated' : ''}" id="cap-${p.id}">
+        ${p.caption || '<em style="color:var(--text-dim)">Sin caption</em>'}
+      </div>
+      ${p.caption && p.caption.length > 120 ? `<button class="btn btn-outline" style="font-size:0.75rem;padding:4px 8px;margin-bottom:8px" onclick="toggleCaption('${p.id}')">Ver más</button>` : ''}
+      <div class="post-footer">
+        <span class="post-date">${new Date(p.timestamp).toLocaleDateString('es-AR')}</span>
+        <div style="display:flex;gap:6px">
+          ${p.comments_count > 0 ? `<button class="btn btn-outline" style="font-size:0.75rem;padding:6px 10px" onclick="toggleComments('${p.id}')">Comentarios</button>` : ''}
+          ${p.excluded
+            ? `<button class="btn btn-restore" onclick="toggleExclude('${p.id}', false)">Restaurar</button>`
+            : `<button class="btn btn-danger" onclick="toggleExclude('${p.id}', true)">Excluir</button>`
+          }
+        </div>
+      </div>
+      ${p.comments_count > 0 ? `
+      <div class="comments-preview" id="comm-${p.id}">
+        ${(JSON.parse(p.comments_data||'[]')).slice(0,8).map(c =>
+          `<div class="comment-item">${c.text}</div>`
+        ).join('')}
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+function toggleCaption(id) {
+  const el = document.getElementById(`cap-${id}`);
+  el.classList.toggle('expanded');
+}
+
+function toggleComments(id) {
+  document.getElementById(`comm-${id}`).classList.toggle('open');
+}
+
+async function toggleExclude(id, exclude) {
+  await fetch(`${API}/api/posts/${id}/${exclude ? 'exclude' : 'include'}`, { method: 'POST' });
+  loadPosts();
+}
+
+// ─── ANÁLISIS ─────────────────────────────────────────────────────────────
+async function analyzePatterns() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = 'Analizando <span class="loader"></span>';
+  document.getElementById('analysis-result').innerHTML = '';
+  try {
+    const res = await fetch(`${API}/api/analyze-patterns`, { method: 'POST' });
+    const data = await res.json();
+    const html = data.analysis
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    document.getElementById('analysis-result').innerHTML = `<div class="analysis-box">${html}</div>`;
+  } catch (e) {
+    document.getElementById('analysis-result').innerHTML = `<span class="msg-error">Error: ${e.message}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Analizar patrones';
+  }
+}
+
+// ─── COPY ─────────────────────────────────────────────────────────────────
+async function generateCopy() {
+  const tema = document.getElementById('copy-tema').value.trim();
+  if (!tema) return;
+  const formato = document.getElementById('copy-formato').value;
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = 'Generando <span class="loader"></span>';
+  document.getElementById('copy-result').innerHTML = '';
+  try {
+    const res = await fetch(`${API}/api/generate-copy`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ tema, formato })
+    });
+    const data = await res.json();
+    const html = data.copy
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    document.getElementById('copy-result').innerHTML = `<div class="copy-result">${html}</div>`;
+  } catch (e) {
+    document.getElementById('copy-result').innerHTML = `<span class="msg-error">Error: ${e.message}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generar copy';
+  }
+}
+</script>
+</body>
+</html>
