@@ -110,6 +110,7 @@
     <div class="tab active" onclick="switchTab('posts')">POSTS</div>
     <div class="tab" onclick="switchTab('analisis')">ANALISIS</div>
     <div class="tab" onclick="switchTab('copy')">COPY</div>
+    <div class="tab" onclick="switchTab('comentarios')">COMENTARIOS</div>
   </div>
 
   <div id="tab-posts" class="tab-content active">
@@ -143,6 +144,16 @@
       <button class="btn btn-gold" onclick="generateCopy()">Generar copy</button>
     </div>
     <div id="copy-result"></div>
+  </div>
+
+  <div id="tab-comentarios" class="tab-content">
+    <div class="toolbar">
+      <button class="btn btn-gold" onclick="loadComments()">Cargar comentarios</button>
+      <button class="btn btn-outline" id="btn-analyze-comments" onclick="analyzeComments()" style="display:none">Analizar con Claude</button>
+      <span id="comments-msg"></span>
+    </div>
+    <div id="comments-analysis" style="margin-bottom:20px"></div>
+    <div id="comments-list"></div>
   </div>
 </div>
 
@@ -191,7 +202,7 @@ document.getElementById('pwd-input').addEventListener('keydown', function(e) {
 if (sessionToken) showApp();
 
 function switchTab(name) {
-  var names = ['posts', 'analisis', 'copy'];
+  var names = ['posts', 'analisis', 'copy', 'comentarios'];
   document.querySelectorAll('.tab').forEach(function(t, i) {
     t.classList.toggle('active', names[i] === name);
   });
@@ -325,6 +336,75 @@ async function generateCopy() {
   } finally {
     btn.disabled = false;
     btn.textContent = 'Generar copy';
+  }
+}
+
+var loadedComments = [];
+
+async function loadComments() {
+  var btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = "Cargando <span class=\"loader\"></span>";
+  document.getElementById("comments-msg").textContent = "";
+  try {
+    var res = await fetch(API + "/api/comments");
+    loadedComments = await res.json();
+    renderComments();
+    document.getElementById("btn-analyze-comments").style.display = "inline-block";
+    document.getElementById("comments-msg").innerHTML = "<span class=\"msg-ok\">✓ " + loadedComments.length + " comentarios</span>";
+  } catch(e) {
+    document.getElementById("comments-msg").innerHTML = "<span class=\"msg-error\">Error: " + e.message + "</span>";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Cargar comentarios";
+  }
+}
+
+function renderComments() {
+  if (!loadedComments.length) {
+    document.getElementById("comments-list").innerHTML = "<div class=\"empty\">No hay comentarios disponibles</div>";
+    return;
+  }
+  document.getElementById("comments-list").innerHTML = loadedComments.map(function(c) {
+    return "<div class=\"post-card\" style=\"display:flex;justify-content:space-between;align-items:flex-start;gap:12px\">" +
+      "<div style=\"flex:1\">" +
+        "<div style=\"font-size:0.88rem;line-height:1.5;margin-bottom:6px\">" + c.text + "</div>" +
+        "<div style=\"font-size:0.75rem;color:var(--text-dim)\">En post: " + c.post_caption + " &mdash; " + c.post_likes.toLocaleString() + " likes</div>" +
+      "</div>" +
+      "<button class=\"btn btn-danger\" style=\"white-space:nowrap\" onclick=\"ignoreComment(\ + c.hash + )\">Ignorar</button>" +
+    "</div>";
+  }).join("");
+}
+
+async function ignoreComment(hash) {
+  await fetch(API + "/api/comments/ignore", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ hash: hash })
+  });
+  loadedComments = loadedComments.filter(function(c) { return c.hash !== hash; });
+  renderComments();
+}
+
+async function analyzeComments() {
+  var btn = document.getElementById("btn-analyze-comments");
+  btn.disabled = true;
+  btn.innerHTML = "Analizando <span class=\"loader\"></span>";
+  document.getElementById("comments-analysis").innerHTML = "";
+  try {
+    var res = await fetch(API + "/api/comments/analyze", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ comments: loadedComments.slice(0, 100) })
+    });
+    var data = await res.json();
+    var html = data.analysis.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
+    document.getElementById("comments-analysis").innerHTML = "<div class=\"analysis-box\" style=\"margin-bottom:20px\">" + html + "</div>";
+  } catch(e) {
+    document.getElementById("comments-analysis").innerHTML = "<span class=\"msg-error\">Error: " + e.message + "</span>";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Analizar con Claude";
   }
 }
 </script>
