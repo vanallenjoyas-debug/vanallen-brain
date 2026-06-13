@@ -7,21 +7,14 @@
 <title>Van Allen Brain</title>
 <style>
   :root {
-    --bg: #0d0d0d;
-    --surface: #1a1a1a;
-    --surface2: #242424;
-    --border: #2e2e2e;
-    --gold: #c9a84c;
-    --gold-dim: #8a6f2e;
-    --text: #e8e0d0;
-    --text-dim: #8a8070;
-    --danger: #c0392b;
-    --success: #27ae60;
+    --bg: #0d0d0d; --surface: #1a1a1a; --surface2: #242424;
+    --border: #2e2e2e; --gold: #c9a84c; --gold-dim: #8a6f2e;
+    --text: #e8e0d0; --text-dim: #8a8070; --danger: #c0392b; --success: #27ae60;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Georgia', serif; min-height: 100vh; }
 
-  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 24px; }
+  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
   .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 40px; width: 320px; text-align: center; }
   .login-box h1 { color: var(--gold); font-size: 1.6rem; margin-bottom: 8px; }
   .login-box p { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
@@ -29,63 +22,79 @@
   .login-box input:focus { outline: none; border-color: var(--gold); }
 
   #app { display: none; flex-direction: column; min-height: 100vh; }
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { color: var(--gold); font-size: 1.3rem; letter-spacing: 2px; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { color: var(--gold); font-size: 1.2rem; letter-spacing: 2px; }
 
-  .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); }
-  .tab { padding: 14px 24px; cursor: pointer; color: var(--text-dim); font-size: 0.9rem; border-bottom: 2px solid transparent; transition: all 0.2s; letter-spacing: 1px; }
+  .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surface); overflow-x: auto; }
+  .tab { padding: 12px 20px; cursor: pointer; color: var(--text-dim); font-size: 0.85rem; border-bottom: 2px solid transparent; white-space: nowrap; }
   .tab:hover { color: var(--text); }
   .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-  .tab-content { display: none; padding: 24px; flex: 1; }
+  .tab-content { display: none; padding: 20px; }
   .tab-content.active { display: block; }
 
-  .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-family: 'Georgia', serif; transition: all 0.2s; }
+  .btn { padding: 9px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-family: 'Georgia', serif; transition: all 0.2s; }
   .btn-gold { background: var(--gold); color: #000; font-weight: bold; }
   .btn-gold:hover { background: #d4b05a; }
   .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
   .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-  .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.8rem; padding: 6px 12px; }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+  .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
   .btn-danger:hover { background: var(--danger); color: white; }
-  .btn-restore { background: transparent; border: 1px solid var(--success); color: var(--success); font-size: 0.8rem; padding: 6px 12px; }
+  .btn-restore { background: transparent; border: 1px solid var(--success); color: var(--success); }
   .btn-restore:hover { background: var(--success); color: white; }
+  .btn-copy-load { background: transparent; border: 1px solid var(--gold-dim); color: var(--gold-dim); }
+  .btn-copy-load:hover { border-color: var(--gold); color: var(--gold); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-  .toolbar label { color: var(--text-dim); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
-  .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-  .stat-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 0.85rem; color: var(--text-dim); }
-  .stat-chip strong { color: var(--gold); display: block; font-size: 1.1rem; }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar label { color: var(--text-dim); font-size: 0.82rem; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+  .toolbar select, .toolbar input[type=date] { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 7px 10px; font-size: 0.82rem; font-family: 'Georgia', serif; }
+  .toolbar select:focus, .toolbar input[type=date]:focus { outline: none; border-color: var(--gold); }
 
-  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-  .post-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: border-color 0.2s; }
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 0.82rem; color: var(--text-dim); }
+  .stat-chip strong { color: var(--gold); display: block; font-size: 1rem; }
+
+  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .post-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
   .post-card:hover { border-color: var(--gold-dim); }
   .post-card.excluded { opacity: 0.4; border-style: dashed; }
-  .post-meta { display: flex; gap: 12px; margin-bottom: 10px; font-size: 0.78rem; color: var(--text-dim); font-family: monospace; flex-wrap: wrap; }
-  .post-meta span strong { color: var(--text); }
-  .post-caption { font-size: 0.88rem; line-height: 1.5; color: var(--text); margin-bottom: 12px; max-height: 80px; overflow: hidden; }
+  .post-meta { display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.76rem; color: var(--text-dim); font-family: monospace; flex-wrap: wrap; }
+  .post-meta .highlight { color: var(--gold); }
+  .post-caption { font-size: 0.86rem; line-height: 1.5; margin-bottom: 10px; max-height: 72px; overflow: hidden; }
   .post-caption.expanded { max-height: none; }
-  .post-footer { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
-  .post-date { font-size: 0.75rem; color: var(--text-dim); }
-  .comments-preview { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: none; }
-  .comments-preview.open { display: block; }
-  .comment-item { font-size: 0.8rem; color: var(--text-dim); padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .manual-copy-badge { display: inline-block; background: var(--gold-dim); color: #000; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; }
+  .post-footer { display: flex; gap: 6px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .post-date { font-size: 0.73rem; color: var(--text-dim); }
+  .post-actions { display: flex; gap: 5px; flex-wrap: wrap; }
 
-  .analysis-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; white-space: pre-wrap; line-height: 1.7; font-size: 0.9rem; }
-  .analysis-box strong { color: var(--gold); }
+  .copy-panel { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: none; }
+  .copy-panel.open { display: block; }
+  .copy-panel textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 8px; font-size: 0.84rem; font-family: 'Georgia', serif; resize: vertical; min-height: 80px; margin-bottom: 6px; }
+  .copy-panel textarea:focus { outline: none; border-color: var(--gold); }
 
-  .copy-form { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
-  .copy-form label { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 6px; }
-  .copy-form input, .copy-form select { width: 100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 0.95rem; margin-bottom: 16px; font-family: 'Georgia', serif; }
-  .copy-form input:focus, .copy-form select:focus { outline: none; border-color: var(--gold); }
-  .copy-result { background: var(--surface); border: 1px solid var(--gold-dim); border-radius: 10px; padding: 24px; white-space: pre-wrap; line-height: 1.8; font-size: 0.9rem; }
+  .comments-section { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; display: none; }
+  .comments-section.open { display: block; }
+  .comment-item { font-size: 0.79rem; color: var(--text-dim); padding: 4px 0; border-bottom: 1px solid var(--border); }
 
-  .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-left: 8px; }
+  .analysis-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; line-height: 1.7; font-size: 0.88rem; }
+  .copy-form { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 18px; }
+  .copy-form label { display: block; color: var(--text-dim); font-size: 0.82rem; margin-bottom: 5px; }
+  .copy-form input, .copy-form select { width: 100%; padding: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 0.92rem; margin-bottom: 14px; font-family: 'Georgia', serif; }
+  .copy-result { background: var(--surface); border: 1px solid var(--gold-dim); border-radius: 10px; padding: 22px; white-space: pre-wrap; line-height: 1.8; font-size: 0.88rem; }
+
+  .comment-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .comment-card .comment-text { font-size: 0.86rem; line-height: 1.4; flex: 1; }
+  .comment-card .comment-meta { font-size: 0.73rem; color: var(--text-dim); margin-top: 4px; }
+
+  .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-left: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .msg-error { color: var(--danger); font-size: 0.85rem; margin-top: 8px; }
-  .msg-ok { color: var(--success); font-size: 0.85rem; margin-top: 8px; }
-  .empty { color: var(--text-dim); text-align: center; padding: 60px; font-size: 0.9rem; }
+  .msg-error { color: var(--danger); font-size: 0.82rem; }
+  .msg-ok { color: var(--success); font-size: 0.82rem; }
+  .empty { color: var(--text-dim); text-align: center; padding: 50px; font-size: 0.88rem; }
+  a.ig-link { color: var(--gold-dim); font-size: 0.76rem; text-decoration: none; }
+  a.ig-link:hover { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -95,17 +104,16 @@
     <h1>VAN ALLEN BRAIN</h1>
     <p>Analisis y creacion de contenido</p>
     <input type="password" id="pwd-input" placeholder="Contrasena" />
-    <button class="btn btn-gold" style="width:100%" onclick="login()">Entrar</button>
-    <p id="login-error" class="msg-error"></p>
+    <button class="btn btn-gold" style="width:100%;margin-top:4px" onclick="login()">Entrar</button>
+    <p id="login-error" class="msg-error" style="margin-top:8px"></p>
   </div>
 </div>
 
 <div id="app">
   <header>
     <h1>VAN ALLEN BRAIN</h1>
-    <button class="btn btn-outline" style="font-size:0.75rem;padding:6px 12px" onclick="logout()">Salir</button>
+    <button class="btn btn-outline btn-sm" onclick="logout()">Salir</button>
   </header>
-
   <div class="tabs">
     <div class="tab active" onclick="switchTab('posts')">POSTS</div>
     <div class="tab" onclick="switchTab('analisis')">ANALISIS</div>
@@ -113,24 +121,37 @@
     <div class="tab" onclick="switchTab('comentarios')">COMENTARIOS</div>
   </div>
 
+  <!-- POSTS -->
   <div id="tab-posts" class="tab-content active">
     <div class="toolbar">
-      <button class="btn btn-gold" onclick="syncPosts()">Sincronizar Instagram</button>
-      <label><input type="checkbox" id="show-excluded" onchange="loadPosts()"> Mostrar excluidos</label>
+      <button class="btn btn-gold btn-sm" onclick="syncPosts()">Sincronizar IG</button>
+      <select id="sort-posts" onchange="loadPosts()">
+        <option value="likes">Mas likes</option>
+        <option value="comments">Mas comentarios</option>
+        <option value="reach">Mas alcance</option>
+        <option value="saved">Mas guardados</option>
+        <option value="date_desc">Mas recientes</option>
+        <option value="date_asc">Mas antiguos</option>
+      </select>
+      <input type="date" id="date-from" onchange="loadPosts()" placeholder="Desde" />
+      <input type="date" id="date-to" onchange="loadPosts()" placeholder="Hasta" />
+      <label><input type="checkbox" id="show-excluded" onchange="loadPosts()"> Excluidos</label>
       <span id="sync-msg"></span>
     </div>
     <div class="stats-bar" id="stats-bar"></div>
     <div class="posts-grid" id="posts-grid"><div class="empty">Sincroniza Instagram para ver los posts</div></div>
   </div>
 
+  <!-- ANALISIS -->
   <div id="tab-analisis" class="tab-content">
     <div class="toolbar">
       <button class="btn btn-gold" onclick="analyzePatterns()">Analizar patrones</button>
-      <span style="color:var(--text-dim);font-size:0.85rem">Analiza los posts activos</span>
+      <span style="color:var(--text-dim);font-size:0.82rem">Prioriza copy cargado manualmente</span>
     </div>
     <div id="analysis-result"></div>
   </div>
 
+  <!-- COPY -->
   <div id="tab-copy" class="tab-content">
     <div class="copy-form">
       <label>Tema o simbolo</label>
@@ -146,13 +167,21 @@
     <div id="copy-result"></div>
   </div>
 
+  <!-- COMENTARIOS -->
   <div id="tab-comentarios" class="tab-content">
     <div class="toolbar">
-      <button class="btn btn-gold" onclick="loadComments()">Cargar comentarios</button>
-      <button class="btn btn-outline" id="btn-analyze-comments" onclick="analyzeComments()" style="display:none">Analizar con Claude</button>
+      <button class="btn btn-gold btn-sm" onclick="loadComments()">Cargar comentarios</button>
+      <select id="sort-comments" onchange="filterComments()">
+        <option value="likes">Post con mas likes</option>
+        <option value="date_desc">Mas recientes</option>
+        <option value="date_asc">Mas antiguos</option>
+      </select>
+      <input type="date" id="comm-date-from" onchange="filterComments()" />
+      <input type="date" id="comm-date-to" onchange="filterComments()" />
+      <button class="btn btn-outline btn-sm" id="btn-analyze-comments" style="display:none" onclick="analyzeComments()">Analizar con Claude</button>
       <span id="comments-msg"></span>
     </div>
-    <div id="comments-analysis" style="margin-bottom:20px"></div>
+    <div id="comments-analysis" style="margin-bottom:16px"></div>
     <div id="comments-list"></div>
   </div>
 </div>
@@ -160,6 +189,8 @@
 <script>
 var API = 'https://vanallen-brain-backend-production.up.railway.app';
 var sessionToken = localStorage.getItem('va_session');
+var loadedComments = [];
+var allCommentsRaw = [];
 
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
@@ -169,243 +200,203 @@ function showApp() {
 
 function logout() {
   localStorage.removeItem('va_session');
-  sessionToken = null;
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
+  location.reload();
 }
 
 async function login() {
   var pwd = document.getElementById('pwd-input').value;
   try {
-    var res = await fetch(API + '/api/login', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ password: pwd })
-    });
+    var res = await fetch(API + '/api/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ password: pwd }) });
     var data = await res.json();
-    if (data.ok) {
-      sessionToken = data.token;
-      localStorage.setItem('va_session', sessionToken);
-      showApp();
-    } else {
-      document.getElementById('login-error').textContent = 'Contrasena incorrecta';
-    }
-  } catch(e) {
-    document.getElementById('login-error').textContent = 'Error de conexion: ' + e.message;
-  }
+    if (data.ok) { sessionToken = data.token; localStorage.setItem('va_session', sessionToken); showApp(); }
+    else document.getElementById('login-error').textContent = 'Contrasena incorrecta';
+  } catch(e) { document.getElementById('login-error').textContent = 'Error: ' + e.message; }
 }
-
-document.getElementById('pwd-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') login();
-});
-
+document.getElementById('pwd-input').addEventListener('keydown', function(e) { if (e.key === 'Enter') login(); });
 if (sessionToken) showApp();
 
 function switchTab(name) {
-  var names = ['posts', 'analisis', 'copy', 'comentarios'];
-  document.querySelectorAll('.tab').forEach(function(t, i) {
-    t.classList.toggle('active', names[i] === name);
-  });
-  document.querySelectorAll('.tab-content').forEach(function(c) {
-    c.classList.remove('active');
-  });
-  document.getElementById('tab-' + name).classList.add('active');
+  var names = ['posts','analisis','copy','comentarios'];
+  document.querySelectorAll('.tab').forEach(function(t,i){ t.classList.toggle('active', names[i]===name); });
+  document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
+  document.getElementById('tab-'+name).classList.add('active');
 }
 
 async function syncPosts() {
-  var btn = event.target;
-  btn.disabled = true;
-  btn.innerHTML = 'Sincronizando <span class="loader"></span>';
-  document.getElementById('sync-msg').textContent = '';
+  var btn = event.target; btn.disabled=true; btn.innerHTML='Sincronizando <span class="loader"></span>';
   try {
-    var res = await fetch(API + '/api/sync-posts', { method: 'POST' });
+    var res = await fetch(API+'/api/sync-posts', {method:'POST'});
     var data = await res.json();
-    document.getElementById('sync-msg').innerHTML = '<span class="msg-ok">✓ ' + data.synced + ' posts sincronizados</span>';
+    if (data.error) throw new Error(data.error);
+    document.getElementById('sync-msg').innerHTML = '<span class="msg-ok">✓ '+data.synced+' posts</span>';
     loadPosts();
-  } catch(e) {
-    document.getElementById('sync-msg').innerHTML = '<span class="msg-error">Error: ' + e.message + '</span>';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Sincronizar Instagram';
-  }
+  } catch(e) { document.getElementById('sync-msg').innerHTML='<span class="msg-error">'+e.message+'</span>'; }
+  finally { btn.disabled=false; btn.textContent='Sincronizar IG'; }
 }
 
 async function loadPosts() {
+  var sort = document.getElementById('sort-posts').value;
+  var dateFrom = document.getElementById('date-from').value;
+  var dateTo = document.getElementById('date-to').value;
   var showExcluded = document.getElementById('show-excluded').checked;
+  var params = 'sort='+sort+(showExcluded?'&show_excluded=1':'')+(dateFrom?'&date_from='+dateFrom:'')+(dateTo?'&date_to='+dateTo:'');
   try {
-    var res = await fetch(API + '/api/posts?show_excluded=' + (showExcluded ? '1' : ''));
+    var res = await fetch(API+'/api/posts?'+params);
     var posts = await res.json();
+    if (posts.error) throw new Error(posts.error);
 
-    var active = posts.filter(function(p) { return !p.excluded; });
-    var totalLikes = active.reduce(function(a, b) { return a + (b.like_count || 0); }, 0);
-    var avgLikes = active.length ? Math.round(totalLikes / active.length) : 0;
-
+    var active = posts.filter(function(p){return !p.excluded;});
+    var avgLikes = active.length ? Math.round(active.reduce(function(a,b){return a+(b.like_count||0);},0)/active.length) : 0;
     document.getElementById('stats-bar').innerHTML =
-      '<div class="stat-chip"><strong>' + active.length + '</strong> posts activos</div>' +
-      '<div class="stat-chip"><strong>' + avgLikes.toLocaleString() + '</strong> likes promedio</div>' +
-      '<div class="stat-chip"><strong>' + posts.filter(function(p){return p.excluded;}).length + '</strong> excluidos</div>';
+      '<div class="stat-chip"><strong>'+active.length+'</strong> activos</div>'+
+      '<div class="stat-chip"><strong>'+avgLikes.toLocaleString()+'</strong> likes prom</div>'+
+      '<div class="stat-chip"><strong>'+posts.filter(function(p){return p.excluded;}).length+'</strong> excluidos</div>';
 
-    if (!posts.length) {
-      document.getElementById('posts-grid').innerHTML = '<div class="empty">No hay posts. Sincroniza Instagram.</div>';
-      return;
-    }
+    if (!posts.length) { document.getElementById('posts-grid').innerHTML='<div class="empty">No hay posts.</div>'; return; }
 
     document.getElementById('posts-grid').innerHTML = posts.map(function(p) {
-      var comments = [];
-      comments = Array.isArray(p.comments_data) ? p.comments_data : (p.comments_data ? JSON.parse(p.comments_data) : []);
-      return '<div class="post-card ' + (p.excluded ? 'excluded' : '') + '" id="card-' + p.id + '">' +
+      var comments = Array.isArray(p.comments_data) ? p.comments_data : [];
+      var hasCopy = p.manual_copy && p.manual_copy.trim().length > 0;
+      var caption = p.caption || '';
+      var isLong = caption.length > 100;
+      return '<div class="post-card '+(p.excluded?'excluded':'')+'" id="card-'+p.id+'">' +
         '<div class="post-meta">' +
-          '<span>likes <strong>' + (p.like_count||0).toLocaleString() + '</strong></span>' +
-          '<span>comentarios <strong>' + (p.comments_count||0).toLocaleString() + '</strong></span>' +
-          (p.reach ? '<span>alcance <strong>' + p.reach.toLocaleString() + '</strong></span>' : '') +
-          (p.saved ? '<span>guardados <strong>' + p.saved.toLocaleString() + '</strong></span>' : '') +
+          '<span class="'+(p.like_count>1000?'highlight':'')+'">'+( p.like_count||0).toLocaleString()+' likes</span>' +
+          '<span>'+(p.comments_count||0)+' coms</span>' +
+          (p.reach?'<span>'+p.reach.toLocaleString()+' alcance</span>':'') +
+          (p.saved?'<span>'+p.saved.toLocaleString()+' guard</span>':'') +
+          '<span>'+new Date(p.timestamp).toLocaleDateString('es-AR')+'</span>' +
         '</div>' +
-        '<div class="post-caption" id="cap-' + p.id + '">' + (p.caption || '<em>Sin caption</em>') + '</div>' +
-        (p.caption && p.caption.length > 120 ? '<button class="btn btn-outline" style="font-size:0.75rem;padding:4px 8px;margin-bottom:8px" onclick="toggleCaption(\'' + p.id + '\')">Ver mas</button>' : '') +
+        (hasCopy ? '<div class="manual-copy-badge">copy cargado</div>' : '') +
+        '<div class="post-caption" id="cap-'+p.id+'">'+(caption||'<em style="color:var(--text-dim)">Sin caption</em>')+'</div>' +
+        (isLong ? '<button class="btn btn-outline btn-sm" style="margin-bottom:8px" onclick="toggleCaption(\''+p.id+'\')">Ver mas</button>' : '') +
         '<div class="post-footer">' +
-          '<span class="post-date">' + new Date(p.timestamp).toLocaleDateString('es-AR') + '</span>' +
-          '<div style="display:flex;gap:6px">' +
-            (p.comments_count > 0 ? '<button class="btn btn-outline" style="font-size:0.75rem;padding:6px 10px" onclick="toggleComments(\'' + p.id + '\')">Comentarios</button>' : '') +
+          '<div class="post-actions">' +
+            (p.permalink ? '<a class="ig-link" href="'+p.permalink+'" target="_blank">Ver en IG ↗</a>' : '') +
+          '</div>' +
+          '<div class="post-actions">' +
+            (comments.length>0 ? '<button class="btn btn-outline btn-sm" onclick="toggleComments(\''+p.id+'\')">Comentarios</button>' : '') +
+            '<button class="btn btn-copy-load btn-sm" onclick="toggleCopyPanel(\''+p.id+'\')">Copy</button>' +
             (p.excluded
-              ? '<button class="btn btn-restore" onclick="toggleExclude(\'' + p.id + '\', false)">Restaurar</button>'
-              : '<button class="btn btn-danger" onclick="toggleExclude(\'' + p.id + '\', true)">Excluir</button>') +
+              ? '<button class="btn btn-restore btn-sm" onclick="toggleExclude(\''+p.id+'\',false)">Restaurar</button>'
+              : '<button class="btn btn-danger btn-sm" onclick="toggleExclude(\''+p.id+'\',true)">Excluir</button>') +
           '</div>' +
         '</div>' +
-        (comments.length > 0
-          ? '<div class="comments-preview" id="comm-' + p.id + '">' +
-              comments.slice(0,8).map(function(c){ return '<div class="comment-item">' + c.text + '</div>'; }).join('') +
-            '</div>'
-          : '') +
+        '<div class="copy-panel" id="copy-'+p.id+'">' +
+          '<textarea id="copy-text-'+p.id+'" placeholder="Pega el copy o guion de este post...">'+(p.manual_copy||'')+'</textarea>' +
+          '<button class="btn btn-gold btn-sm" onclick="saveCopy(\''+p.id+'\')">Guardar copy</button>' +
+          '<span id="copy-saved-'+p.id+'" style="margin-left:8px;font-size:0.78rem"></span>' +
+        '</div>' +
+        (comments.length>0 ?
+          '<div class="comments-section" id="comm-'+p.id+'">'+
+            comments.slice(0,8).map(function(c){return '<div class="comment-item">'+c.text+'</div>';}).join('')+
+          '</div>' : '') +
       '</div>';
     }).join('');
-  } catch(e) {
-    document.getElementById('posts-grid').innerHTML = '<div class="empty">Error cargando posts: ' + e.message + '</div>';
-  }
+  } catch(e) { document.getElementById('posts-grid').innerHTML='<div class="empty">Error: '+e.message+'</div>'; }
 }
 
-function toggleCaption(id) {
-  document.getElementById('cap-' + id).classList.toggle('expanded');
-}
-
-function toggleComments(id) {
-  document.getElementById('comm-' + id).classList.toggle('open');
-}
+function toggleCaption(id) { document.getElementById('cap-'+id).classList.toggle('expanded'); }
+function toggleComments(id) { document.getElementById('comm-'+id).classList.toggle('open'); }
+function toggleCopyPanel(id) { document.getElementById('copy-'+id).classList.toggle('open'); }
 
 async function toggleExclude(id, exclude) {
-  await fetch(API + '/api/posts/' + id + '/' + (exclude ? 'exclude' : 'include'), { method: 'POST' });
+  await fetch(API+'/api/posts/'+id+'/'+(exclude?'exclude':'include'), {method:'POST'});
   loadPosts();
 }
 
-async function analyzePatterns() {
-  var btn = event.target;
-  btn.disabled = true;
-  btn.innerHTML = 'Analizando <span class="loader"></span>';
-  document.getElementById('analysis-result').innerHTML = '';
+async function saveCopy(id) {
+  var copy = document.getElementById('copy-text-'+id).value;
+  var span = document.getElementById('copy-saved-'+id);
   try {
-    var res = await fetch(API + '/api/analyze-patterns', { method: 'POST' });
+    await fetch(API+'/api/posts/'+id+'/copy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({copy:copy}) });
+    span.innerHTML = '<span class="msg-ok">✓ Guardado</span>';
+    setTimeout(function(){ span.textContent=''; loadPosts(); }, 1500);
+  } catch(e) { span.innerHTML='<span class="msg-error">Error</span>'; }
+}
+
+async function analyzePatterns() {
+  var btn = event.target; btn.disabled=true; btn.innerHTML='Analizando <span class="loader"></span>';
+  document.getElementById('analysis-result').innerHTML='';
+  try {
+    var res = await fetch(API+'/api/analyze-patterns', {method:'POST'});
     var data = await res.json();
-    var html = data.analysis.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-    document.getElementById('analysis-result').innerHTML = '<div class="analysis-box">' + html + '</div>';
-  } catch(e) {
-    document.getElementById('analysis-result').innerHTML = '<span class="msg-error">Error: ' + e.message + '</span>';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Analizar patrones';
-  }
+    if (data.error) throw new Error(data.error);
+    var html = data.analysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    document.getElementById('analysis-result').innerHTML='<div class="analysis-box">'+html+'</div>';
+  } catch(e) { document.getElementById('analysis-result').innerHTML='<span class="msg-error">'+e.message+'</span>'; }
+  finally { btn.disabled=false; btn.textContent='Analizar patrones'; }
 }
 
 async function generateCopy() {
   var tema = document.getElementById('copy-tema').value.trim();
   if (!tema) return;
   var formato = document.getElementById('copy-formato').value;
-  var btn = event.target;
-  btn.disabled = true;
-  btn.innerHTML = 'Generando <span class="loader"></span>';
-  document.getElementById('copy-result').innerHTML = '';
+  var btn = event.target; btn.disabled=true; btn.innerHTML='Generando <span class="loader"></span>';
+  document.getElementById('copy-result').innerHTML='';
   try {
-    var res = await fetch(API + '/api/generate-copy', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ tema: tema, formato: formato })
-    });
+    var res = await fetch(API+'/api/generate-copy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({tema:tema,formato:formato}) });
     var data = await res.json();
-    var html = data.copy.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-    document.getElementById('copy-result').innerHTML = '<div class="copy-result">' + html + '</div>';
-  } catch(e) {
-    document.getElementById('copy-result').innerHTML = '<span class="msg-error">Error: ' + e.message + '</span>';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Generar copy';
-  }
+    if (data.error) throw new Error(data.error);
+    var html = data.copy.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    document.getElementById('copy-result').innerHTML='<div class="copy-result">'+html+'</div>';
+  } catch(e) { document.getElementById('copy-result').innerHTML='<span class="msg-error">'+e.message+'</span>'; }
+  finally { btn.disabled=false; btn.textContent='Generar copy'; }
 }
 
-var loadedComments = [];
-
 async function loadComments() {
-  var btn = event.target;
-  btn.disabled = true;
-  btn.innerHTML = "Cargando <span class=\"loader\"></span>";
-  document.getElementById("comments-msg").textContent = "";
+  var btn = event.target; btn.disabled=true; btn.innerHTML='Cargando <span class="loader"></span>';
   try {
-    var res = await fetch(API + "/api/comments");
-    loadedComments = await res.json();
+    var sort = document.getElementById('sort-comments').value;
+    var dateFrom = document.getElementById('comm-date-from').value;
+    var dateTo = document.getElementById('comm-date-to').value;
+    var params = 'sort='+sort+(dateFrom?'&date_from='+dateFrom:'')+(dateTo?'&date_to='+dateTo:'');
+    var res = await fetch(API+'/api/comments?'+params);
+    allCommentsRaw = await res.json();
+    loadedComments = allCommentsRaw.slice();
     renderComments();
-    document.getElementById("btn-analyze-comments").style.display = "inline-block";
-    document.getElementById("comments-msg").innerHTML = "<span class=\"msg-ok\">✓ " + loadedComments.length + " comentarios</span>";
-  } catch(e) {
-    document.getElementById("comments-msg").innerHTML = "<span class=\"msg-error\">Error: " + e.message + "</span>";
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Cargar comentarios";
-  }
+    document.getElementById('btn-analyze-comments').style.display='inline-block';
+    document.getElementById('comments-msg').innerHTML='<span class="msg-ok">✓ '+loadedComments.length+' comentarios</span>';
+  } catch(e) { document.getElementById('comments-msg').innerHTML='<span class="msg-error">'+e.message+'</span>'; }
+  finally { btn.disabled=false; btn.textContent='Cargar comentarios'; }
+}
+
+function filterComments() {
+  if (!allCommentsRaw.length) return;
+  loadComments();
 }
 
 function renderComments() {
-  if (!loadedComments.length) {
-    document.getElementById("comments-list").innerHTML = "<div class=\"empty\">No hay comentarios disponibles</div>";
-    return;
-  }
-  document.getElementById("comments-list").innerHTML = loadedComments.map(function(c) {
-    return "<div class=\"post-card\" style=\"display:flex;justify-content:space-between;align-items:flex-start;gap:12px\">" +
-      "<div style=\"flex:1\">" +
-        "<div style=\"font-size:0.88rem;line-height:1.5;margin-bottom:6px\">" + c.text + "</div>" +
-        "<div style=\"font-size:0.75rem;color:var(--text-dim)\">En post: " + c.post_caption + " &mdash; " + c.post_likes.toLocaleString() + " likes</div>" +
-      "</div>" +
-      "<button class=\"btn btn-danger\" style=\"white-space:nowrap\" onclick=\"ignoreComment(\ + c.hash + )\">Ignorar</button>" +
-    "</div>";
-  }).join("");
+  if (!loadedComments.length) { document.getElementById('comments-list').innerHTML='<div class="empty">No hay comentarios</div>'; return; }
+  document.getElementById('comments-list').innerHTML = loadedComments.map(function(c) {
+    return '<div class="comment-card">' +
+      '<div>' +
+        '<div class="comment-text">'+c.text+'</div>' +
+        '<div class="comment-meta">Post: '+c.post_caption+' &mdash; '+c.post_likes.toLocaleString()+' likes</div>' +
+      '</div>' +
+      '<button class="btn btn-danger btn-sm" style="white-space:nowrap" onclick="ignoreComment(\''+c.hash+'\')">Ignorar</button>' +
+    '</div>';
+  }).join('');
 }
 
 async function ignoreComment(hash) {
-  await fetch(API + "/api/comments/ignore", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ hash: hash })
-  });
-  loadedComments = loadedComments.filter(function(c) { return c.hash !== hash; });
+  await fetch(API+'/api/comments/ignore', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({hash:hash}) });
+  loadedComments = loadedComments.filter(function(c){return c.hash!==hash;});
   renderComments();
 }
 
 async function analyzeComments() {
-  var btn = document.getElementById("btn-analyze-comments");
-  btn.disabled = true;
-  btn.innerHTML = "Analizando <span class=\"loader\"></span>";
-  document.getElementById("comments-analysis").innerHTML = "";
+  var btn = document.getElementById('btn-analyze-comments');
+  btn.disabled=true; btn.innerHTML='Analizando <span class="loader"></span>';
+  document.getElementById('comments-analysis').innerHTML='';
   try {
-    var res = await fetch(API + "/api/comments/analyze", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ comments: loadedComments.slice(0, 100) })
-    });
+    var res = await fetch(API+'/api/comments/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({comments:loadedComments.slice(0,100)}) });
     var data = await res.json();
-    var html = data.analysis.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
-    document.getElementById("comments-analysis").innerHTML = "<div class=\"analysis-box\" style=\"margin-bottom:20px\">" + html + "</div>";
-  } catch(e) {
-    document.getElementById("comments-analysis").innerHTML = "<span class=\"msg-error\">Error: " + e.message + "</span>";
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Analizar con Claude";
-  }
+    if (data.error) throw new Error(data.error);
+    var html = data.analysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    document.getElementById('comments-analysis').innerHTML='<div class="analysis-box" style="margin-bottom:16px">'+html+'</div>';
+  } catch(e) { document.getElementById('comments-analysis').innerHTML='<span class="msg-error">'+e.message+'</span>'; }
+  finally { btn.disabled=false; btn.textContent='Analizar con Claude'; }
 }
 </script>
 </body>
