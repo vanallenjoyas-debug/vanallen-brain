@@ -6,11 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Van Allen Brain</title>
 <style>
-  :root {
-    --bg:#0d0d0d;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;
-    --gold:#c9a84c;--gold-dim:#8a6f2e;--text:#e8e0d0;--text-dim:#8a8070;
-    --danger:#c0392b;--success:#27ae60;
-  }
+  :root{--bg:#0d0d0d;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--gold:#c9a84c;--gold-dim:#8a6f2e;--text:#e8e0d0;--text-dim:#8a8070;--danger:#c0392b;--success:#27ae60;}
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font-family:'Georgia',serif;min-height:100vh}
   #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
@@ -24,22 +20,15 @@
   header h1{color:var(--gold);font-size:1.1rem;letter-spacing:2px}
   .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto}
   .tab{padding:12px 18px;cursor:pointer;color:var(--text-dim);font-size:0.82rem;border-bottom:2px solid transparent;white-space:nowrap}
-  .tab:hover{color:var(--text)}
-  .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-  .tab-content{display:none;padding:18px}
-  .tab-content.active{display:block}
+  .tab:hover{color:var(--text)}.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+  .tab-content{display:none;padding:18px}.tab-content.active{display:block}
   .btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:0.82rem;font-family:'Georgia',serif;transition:all 0.2s}
-  .btn-gold{background:var(--gold);color:#000;font-weight:bold}
-  .btn-gold:hover{background:#d4b05a}
-  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
-  .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+  .btn-gold{background:var(--gold);color:#000;font-weight:bold}.btn-gold:hover{background:#d4b05a}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-dim)}.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
   .btn-sm{padding:4px 10px;font-size:0.76rem}
-  .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger)}
-  .btn-danger:hover{background:var(--danger);color:white}
-  .btn-restore{background:transparent;border:1px solid var(--success);color:var(--success)}
-  .btn-restore:hover{background:var(--success);color:white}
-  .btn-copy-load{background:transparent;border:1px solid var(--gold-dim);color:var(--gold-dim)}
-  .btn-copy-load:hover{border-color:var(--gold);color:var(--gold)}
+  .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger)}.btn-danger:hover{background:var(--danger);color:white}
+  .btn-restore{background:transparent;border:1px solid var(--success);color:var(--success)}.btn-restore:hover{background:var(--success);color:white}
+  .btn-copy-load{background:transparent;border:1px solid var(--gold-dim);color:var(--gold-dim)}.btn-copy-load:hover{border-color:var(--gold);color:var(--gold)}
   .btn:disabled{opacity:0.4;cursor:not-allowed}
   .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
   .toolbar label{color:var(--text-dim);font-size:0.8rem;display:flex;align-items:center;gap:5px;cursor:pointer}
@@ -47,10 +36,19 @@
   .stats-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
   .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:0.8rem;color:var(--text-dim)}
   .stat-chip strong{color:var(--gold);display:block;font-size:0.95rem}
-  .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
-  .post-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
+
+  /* VISTA SELECTOR */
+  .view-toggle{display:flex;gap:6px;margin-bottom:14px}
+  .view-btn{padding:5px 12px;border:1px solid var(--border);background:transparent;color:var(--text-dim);border-radius:6px;cursor:pointer;font-size:0.78rem;font-family:'Georgia',serif}
+  .view-btn.active{border-color:var(--gold);color:var(--gold)}
+
+  /* GRILLA */
+  .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .post-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;position:relative}
   .post-card:hover{border-color:var(--gold-dim)}
-  .post-card.excluded{opacity:0.4;border-style:dashed}
+  .post-card.excluded{opacity:0.35;border-style:dashed}
+  .post-card.selected{border-color:var(--gold);background:#1f1a0e}
+  .post-card .select-check{position:absolute;top:10px;right:10px;width:18px;height:18px;accent-color:var(--gold);cursor:pointer}
   .post-meta{display:flex;gap:8px;margin-bottom:7px;font-size:0.74rem;color:var(--text-dim);font-family:monospace;flex-wrap:wrap}
   .post-meta .hl{color:var(--gold)}
   .post-caption{font-size:0.84rem;line-height:1.4;margin-bottom:8px;max-height:68px;overflow:hidden}
@@ -65,6 +63,26 @@
   .comments-section{margin-top:8px;border-top:1px solid var(--border);padding-top:8px;display:none}
   .comments-section.open{display:block}
   .comment-item{font-size:0.78rem;color:var(--text-dim);padding:3px 0;border-bottom:1px solid var(--border)}
+
+  /* LISTA CARGA COPY */
+  .copy-load-list{display:flex;flex-direction:column;gap:10px}
+  .copy-load-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+  .copy-load-item .cli-left{}
+  .copy-load-item .cli-meta{font-size:0.74rem;color:var(--text-dim);margin-bottom:6px;font-family:monospace}
+  .copy-load-item .cli-caption{font-size:0.84rem;line-height:1.4;color:var(--text);max-height:80px;overflow:hidden}
+  .copy-load-item .cli-caption.expanded{max-height:none}
+  .copy-load-item .cli-right{display:flex;flex-direction:column;gap:6px}
+  .copy-load-item textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px;font-size:0.82rem;font-family:'Georgia',serif;resize:vertical;min-height:90px}
+  .copy-load-item textarea:focus{outline:none;border-color:var(--gold)}
+  .copy-load-item .cli-actions{display:flex;gap:6px;align-items:center}
+  .copy-badge-list{display:inline-block;background:var(--gold-dim);color:#000;font-size:0.68rem;padding:2px 6px;border-radius:4px}
+
+  /* BULK ACTIONS */
+  .bulk-bar{background:var(--surface2);border:1px solid var(--gold-dim);border-radius:8px;padding:10px 14px;display:none;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .bulk-bar.visible{display:flex}
+  .bulk-count{color:var(--gold);font-size:0.84rem}
+
+  /* ANALISIS / COPY / COMENTARIOS */
   .result-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;line-height:1.7;font-size:0.86rem}
   .result-meta{font-size:0.74rem;color:var(--text-dim);margin-bottom:10px}
   .copy-form{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
@@ -73,12 +91,13 @@
   .copy-result{background:var(--surface);border:1px solid var(--gold-dim);border-radius:10px;padding:20px;white-space:pre-wrap;line-height:1.8;font-size:0.86rem}
   .copy-history-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:10px;cursor:pointer}
   .copy-history-item:hover{border-color:var(--gold-dim)}
-  .copy-history-item .ch-meta{font-size:0.74rem;color:var(--text-dim);margin-bottom:6px}
-  .copy-history-item .ch-preview{font-size:0.82rem;max-height:50px;overflow:hidden}
+  .ch-meta{font-size:0.74rem;color:var(--text-dim);margin-bottom:6px}
+  .ch-preview{font-size:0.82rem;max-height:50px;overflow:hidden;white-space:pre-wrap}
   .copy-history-item.expanded .ch-preview{max-height:none}
   .comment-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:7px}
   .comment-text{font-size:0.84rem;line-height:1.4;flex:1}
   .comment-meta{font-size:0.72rem;color:var(--text-dim);margin-top:3px}
+  .section-title{color:var(--text-dim);font-size:0.76rem;letter-spacing:1px;margin-bottom:10px;margin-top:16px;border-bottom:1px solid var(--border);padding-bottom:6px}
   .loader{display:inline-block;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-left:5px}
   @keyframes spin{to{transform:rotate(360deg)}}
   .msg-error{color:var(--danger);font-size:0.8rem}
@@ -86,7 +105,6 @@
   .empty{color:var(--text-dim);text-align:center;padding:40px;font-size:0.86rem}
   a.ig-link{color:var(--gold-dim);font-size:0.74rem;text-decoration:none}
   a.ig-link:hover{color:var(--gold)}
-  .section-title{color:var(--text-dim);font-size:0.78rem;letter-spacing:1px;margin-bottom:10px;margin-top:16px;border-bottom:1px solid var(--border);padding-bottom:6px}
 </style>
 </head>
 <body>
@@ -107,8 +125,9 @@
   </header>
   <div class="tabs">
     <div class="tab active" onclick="switchTab('posts')">POSTS</div>
+    <div class="tab" onclick="switchTab('cargar-copy')">CARGAR COPY</div>
     <div class="tab" onclick="switchTab('analisis')">ANALISIS</div>
-    <div class="tab" onclick="switchTab('copy')">COPY</div>
+    <div class="tab" onclick="switchTab('copy')">GENERAR COPY</div>
     <div class="tab" onclick="switchTab('comentarios')">COMENTARIOS</div>
   </div>
 
@@ -130,7 +149,22 @@
       <span id="sync-msg"></span>
     </div>
     <div class="stats-bar" id="stats-bar"></div>
+    <!-- BULK BAR -->
+    <div class="bulk-bar" id="bulk-bar">
+      <span class="bulk-count" id="bulk-count">0 seleccionados</span>
+      <button class="btn btn-danger btn-sm" onclick="bulkExclude()">Excluir seleccionados</button>
+      <button class="btn btn-restore btn-sm" onclick="bulkInclude()">Restaurar seleccionados</button>
+      <button class="btn btn-outline btn-sm" onclick="clearSelection()">Cancelar</button>
+    </div>
     <div class="posts-grid" id="posts-grid"><div class="empty">Cargando...</div></div>
+  </div>
+
+  <!-- CARGAR COPY -->
+  <div id="tab-cargar-copy" class="tab-content">
+    <div class="toolbar">
+      <span style="color:var(--text-dim);font-size:0.82rem">Mostrando top 50 por likes — pega el guion o copy de cada post</span>
+    </div>
+    <div class="copy-load-list" id="copy-load-list"><div class="empty">Cargando...</div></div>
   </div>
 
   <!-- ANALISIS -->
@@ -142,7 +176,7 @@
     <div id="analysis-result"></div>
   </div>
 
-  <!-- COPY -->
+  <!-- GENERAR COPY -->
   <div id="tab-copy" class="tab-content">
     <div class="copy-form">
       <label>Tema o simbolo</label>
@@ -182,17 +216,21 @@
 var API='https://vanallen-brain-backend-production.up.railway.app';
 var sessionToken=localStorage.getItem('va_session');
 var loadedComments=[];
+var selectedIds=new Set();
+var allPosts=[];
 
 function showApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='flex';
   loadPosts();
+  loadCopyLoadList();
   loadSavedAnalysis();
   loadCopyHistory();
   loadComments();
   loadSavedCommentsAnalysis();
 }
 function logout(){localStorage.removeItem('va_session');location.reload();}
+
 async function login(){
   var pwd=document.getElementById('pwd-input').value;
   try{
@@ -206,12 +244,13 @@ document.getElementById('pwd-input').addEventListener('keydown',function(e){if(e
 if(sessionToken)showApp();
 
 function switchTab(name){
-  var names=['posts','analisis','copy','comentarios'];
+  var names=['posts','cargar-copy','analisis','copy','comentarios'];
   document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',names[i]===name);});
   document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active');});
   document.getElementById('tab-'+name).classList.add('active');
 }
 
+// SYNC
 async function syncPosts(){
   var btn=event.target;btn.disabled=true;btn.innerHTML='Sincronizando <span class="loader"></span>';
   try{
@@ -219,11 +258,12 @@ async function syncPosts(){
     var data=await res.json();
     if(data.error)throw new Error(data.error);
     document.getElementById('sync-msg').innerHTML='<span class="msg-ok">✓ '+data.synced+' posts</span>';
-    loadPosts();
+    loadPosts();loadCopyLoadList();
   }catch(e){document.getElementById('sync-msg').innerHTML='<span class="msg-error">'+e.message+'</span>';}
   finally{btn.disabled=false;btn.textContent='Sincronizar IG';}
 }
 
+// POSTS
 async function loadPosts(){
   var sort=document.getElementById('sort-posts').value;
   var df=document.getElementById('date-from').value;
@@ -232,72 +272,130 @@ async function loadPosts(){
   var params='sort='+sort+(se?'&show_excluded=1':'')+(df?'&date_from='+df:'')+(dt?'&date_to='+dt:'');
   try{
     var res=await fetch(API+'/api/posts?'+params);
-    var posts=await res.json();
-    if(posts.error)throw new Error(posts.error);
-    var active=posts.filter(function(p){return !p.excluded;});
+    allPosts=await res.json();
+    if(allPosts.error)throw new Error(allPosts.error);
+    var active=allPosts.filter(function(p){return !p.excluded;});
     var avgLikes=active.length?Math.round(active.reduce(function(a,b){return a+(b.like_count||0);},0)/active.length):0;
     document.getElementById('stats-bar').innerHTML=
       '<div class="stat-chip"><strong>'+active.length+'</strong> activos</div>'+
       '<div class="stat-chip"><strong>'+avgLikes.toLocaleString()+'</strong> likes prom</div>'+
-      '<div class="stat-chip"><strong>'+posts.filter(function(p){return p.excluded;}).length+'</strong> excluidos</div>';
-    if(!posts.length){document.getElementById('posts-grid').innerHTML='<div class="empty">No hay posts.</div>';return;}
-    document.getElementById('posts-grid').innerHTML=posts.map(function(p){
-      var comments=Array.isArray(p.comments_data)?p.comments_data:[];
-      var hasCopy=p.manual_copy&&p.manual_copy.trim().length>0;
-      var caption=p.caption||'';
-      return '<div class="post-card '+(p.excluded?'excluded':'')+'">' +
-        '<div class="post-meta">' +
-          '<span class="'+(p.like_count>1000?'hl':'')+'">'+(p.like_count||0).toLocaleString()+' likes</span>' +
-          '<span>'+(p.comments_count||0)+' coms</span>' +
-          (p.reach?'<span>'+p.reach.toLocaleString()+' alc</span>':'') +
-          (p.saved?'<span>'+p.saved.toLocaleString()+' guard</span>':'') +
-          '<span>'+new Date(p.timestamp).toLocaleDateString('es-AR')+'</span>' +
-        '</div>' +
-        (hasCopy?'<div class="copy-badge">copy cargado</div>':'')+
-        '<div class="post-caption" id="cap-'+p.id+'">'+(caption||'<em style="color:var(--text-dim)">Sin caption</em>')+'</div>'+
-        (caption.length>100?'<button class="btn btn-outline btn-sm" style="margin-bottom:7px" onclick="toggleCap(\''+p.id+'\')">Ver mas</button>':'')+
-        '<div class="post-footer">'+
-          '<div class="post-actions">'+
-            (p.permalink?'<a class="ig-link" href="'+p.permalink+'" target="_blank">Ver en IG ↗</a>':'')+
-          '</div>'+
-          '<div class="post-actions">'+
-            (comments.length>0?'<button class="btn btn-outline btn-sm" onclick="toggleComms(\''+p.id+'\')">Comentarios</button>':'')+
-            '<button class="btn btn-copy-load btn-sm" onclick="toggleCopyPanel(\''+p.id+'\')">Copy</button>'+
-            (p.excluded
-              ?'<button class="btn btn-restore btn-sm" onclick="toggleExclude(\''+p.id+'\',false)">Restaurar</button>'
-              :'<button class="btn btn-danger btn-sm" onclick="toggleExclude(\''+p.id+'\',true)">Excluir</button>')+
-          '</div>'+
-        '</div>'+
-        '<div class="copy-panel" id="copy-'+p.id+'">'+
-          '<textarea id="copy-text-'+p.id+'" placeholder="Pega el copy o guion de este post...">'+(p.manual_copy||'')+'</textarea>'+
-          '<button class="btn btn-gold btn-sm" onclick="saveCopy(\''+p.id+'\')">Guardar</button>'+
-          '<span id="copy-saved-'+p.id+'" style="margin-left:8px;font-size:0.76rem"></span>'+
-        '</div>'+
-        (comments.length>0?
-          '<div class="comments-section" id="comm-'+p.id+'">'+
-            comments.slice(0,8).map(function(c){return '<div class="comment-item">'+c.text+'</div>';}).join('')+
-          '</div>':'')+
-      '</div>';
-    }).join('');
+      '<div class="stat-chip"><strong>'+allPosts.filter(function(p){return p.excluded;}).length+'</strong> excluidos</div>';
+    renderPosts();
   }catch(e){document.getElementById('posts-grid').innerHTML='<div class="empty">Error: '+e.message+'</div>';}
+}
+
+function renderPosts(){
+  if(!allPosts.length){document.getElementById('posts-grid').innerHTML='<div class="empty">No hay posts.</div>';return;}
+  document.getElementById('posts-grid').innerHTML=allPosts.map(function(p){
+    var comments=Array.isArray(p.comments_data)?p.comments_data:[];
+    var hasCopy=p.manual_copy&&p.manual_copy.trim().length>0;
+    var caption=p.caption||'';
+    var isSel=selectedIds.has(p.id);
+    return '<div class="post-card '+(p.excluded?'excluded':'')+(isSel?' selected':'')+'" id="card-'+p.id+'">'+
+      '<input type="checkbox" class="select-check" '+(isSel?'checked':'')+' onchange="toggleSelect(\''+p.id+'\',this.checked)">'+
+      '<div class="post-meta">'+
+        '<span class="'+(p.like_count>1000?'hl':'')+'">'+(p.like_count||0).toLocaleString()+' likes</span>'+
+        '<span>'+(p.comments_count||0)+' coms</span>'+
+        (p.reach?'<span>'+p.reach.toLocaleString()+' alc</span>':'')+
+        (p.saved?'<span>'+p.saved.toLocaleString()+' guard</span>':'')+
+        '<span>'+new Date(p.timestamp).toLocaleDateString('es-AR')+'</span>'+
+      '</div>'+
+      (hasCopy?'<div class="copy-badge">copy cargado</div>':'')+
+      '<div class="post-caption" id="cap-'+p.id+'">'+(caption||'<em style="color:var(--text-dim)">Sin caption</em>')+'</div>'+
+      (caption.length>100?'<button class="btn btn-outline btn-sm" style="margin-bottom:7px" onclick="toggleCap(\''+p.id+'\')">Ver mas</button>':'')+
+      '<div class="post-footer">'+
+        '<div class="post-actions">'+
+          (p.permalink?'<a class="ig-link" href="'+p.permalink+'" target="_blank">Ver en IG ↗</a>':'')+
+        '</div>'+
+        '<div class="post-actions">'+
+          (comments.length>0?'<button class="btn btn-outline btn-sm" onclick="toggleComms(\''+p.id+'\')">Coms</button>':'')+
+          (p.excluded
+            ?'<button class="btn btn-restore btn-sm" onclick="toggleExclude(\''+p.id+'\',false)">Restaurar</button>'
+            :'<button class="btn btn-danger btn-sm" onclick="toggleExclude(\''+p.id+'\',true)">Excluir</button>')+
+        '</div>'+
+      '</div>'+
+      (comments.length>0?
+        '<div class="comments-section" id="comm-'+p.id+'">'+
+          comments.slice(0,8).map(function(c){return '<div class="comment-item">'+c.text+'</div>';}).join('')+
+        '</div>':'')+
+    '</div>';
+  }).join('');
 }
 
 function toggleCap(id){document.getElementById('cap-'+id).classList.toggle('expanded');}
 function toggleComms(id){document.getElementById('comm-'+id).classList.toggle('open');}
-function toggleCopyPanel(id){document.getElementById('copy-'+id).classList.toggle('open');}
+
+function toggleSelect(id,checked){
+  if(checked)selectedIds.add(id);else selectedIds.delete(id);
+  var card=document.getElementById('card-'+id);
+  if(card)card.classList.toggle('selected',checked);
+  updateBulkBar();
+}
+
+function updateBulkBar(){
+  var bar=document.getElementById('bulk-bar');
+  var count=selectedIds.size;
+  if(count>0){bar.classList.add('visible');document.getElementById('bulk-count').textContent=count+' seleccionados';}
+  else bar.classList.remove('visible');
+}
+
+function clearSelection(){selectedIds.clear();updateBulkBar();renderPosts();}
+
+async function bulkExclude(){
+  var ids=Array.from(selectedIds);
+  await Promise.all(ids.map(function(id){return fetch(API+'/api/posts/'+id+'/exclude',{method:'POST'});}));
+  selectedIds.clear();updateBulkBar();loadPosts();
+}
+async function bulkInclude(){
+  var ids=Array.from(selectedIds);
+  await Promise.all(ids.map(function(id){return fetch(API+'/api/posts/'+id+'/include',{method:'POST'});}));
+  selectedIds.clear();updateBulkBar();loadPosts();
+}
 
 async function toggleExclude(id,exclude){
   await fetch(API+'/api/posts/'+id+'/'+(exclude?'exclude':'include'),{method:'POST'});
   loadPosts();
 }
 
-async function saveCopy(id){
-  var copy=document.getElementById('copy-text-'+id).value;
-  var span=document.getElementById('copy-saved-'+id);
+// CARGAR COPY — lista rápida
+async function loadCopyLoadList(){
+  try{
+    var res=await fetch(API+'/api/posts?sort=likes');
+    var posts=await res.json();
+    posts=posts.filter(function(p){return !p.excluded;}).slice(0,50);
+    if(!posts.length){document.getElementById('copy-load-list').innerHTML='<div class="empty">No hay posts activos.</div>';return;}
+    document.getElementById('copy-load-list').innerHTML=posts.map(function(p,i){
+      var hasCopy=p.manual_copy&&p.manual_copy.trim().length>0;
+      return '<div class="copy-load-item">'+
+        '<div class="cli-left">'+
+          '<div class="cli-meta">#'+(i+1)+' &mdash; '+(p.like_count||0).toLocaleString()+' likes &mdash; '+new Date(p.timestamp).toLocaleDateString('es-AR')+
+            (hasCopy?' &mdash; <span class="copy-badge-list">copy guardado</span>':'')+
+            (p.permalink?' &mdash; <a class="ig-link" href="'+p.permalink+'" target="_blank">Ver en IG ↗</a>':'')+
+          '</div>'+
+          '<div class="cli-caption" id="cli-cap-'+p.id+'">'+(p.caption||'<em style="color:var(--text-dim)">Sin caption</em>')+'</div>'+
+          (p.caption&&p.caption.length>100?'<button class="btn btn-outline btn-sm" style="margin-top:5px" onclick="toggleCliCap(\''+p.id+'\')">Ver mas</button>':'')+
+        '</div>'+
+        '<div class="cli-right">'+
+          '<textarea id="cli-copy-'+p.id+'" placeholder="Pega el guion o copy completo...">'+(p.manual_copy||'')+'</textarea>'+
+          '<div class="cli-actions">'+
+            '<button class="btn btn-gold btn-sm" onclick="saveCopyList(\''+p.id+'\')">Guardar</button>'+
+            '<span id="cli-saved-'+p.id+'" style="font-size:0.76rem"></span>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){document.getElementById('copy-load-list').innerHTML='<div class="empty">Error: '+e.message+'</div>';}
+}
+
+function toggleCliCap(id){document.getElementById('cli-cap-'+id).classList.toggle('expanded');}
+
+async function saveCopyList(id){
+  var copy=document.getElementById('cli-copy-'+id).value;
+  var span=document.getElementById('cli-saved-'+id);
   try{
     await fetch(API+'/api/posts/'+id+'/copy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({copy:copy})});
     span.innerHTML='<span class="msg-ok">✓ Guardado</span>';
-    setTimeout(function(){span.textContent='';loadPosts();},1500);
+    setTimeout(function(){span.textContent='';},2000);
   }catch(e){span.innerHTML='<span class="msg-error">Error</span>';}
 }
 
@@ -329,17 +427,16 @@ async function analyzePatterns(){
   finally{btn.disabled=false;btn.textContent='Generar analisis';}
 }
 
-// COPY
+// GENERAR COPY
 async function loadCopyHistory(){
   try{
     var res=await fetch(API+'/api/copy-history');
     var items=await res.json();
     if(!items.length){document.getElementById('copy-history').innerHTML='<div class="empty">Todavia no generaste ningun copy</div>';return;}
-    document.getElementById('copy-history').innerHTML=items.map(function(item,i){
-      var html=(item.copy||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    document.getElementById('copy-history').innerHTML=items.map(function(item){
       return '<div class="copy-history-item" onclick="this.classList.toggle(\'expanded\')">'+
         '<div class="ch-meta">'+item.tema+' ('+item.formato+') — '+new Date(item.updated_at).toLocaleString('es-AR')+'</div>'+
-        '<div class="ch-preview">'+html+'</div>'+
+        '<div class="ch-preview">'+item.copy+'</div>'+
       '</div>';
     }).join('');
   }catch(e){}
@@ -355,8 +452,7 @@ async function generateCopy(){
     var res=await fetch(API+'/api/generate-copy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:tema,formato:formato})});
     var data=await res.json();
     if(data.error)throw new Error(data.error);
-    var html=data.copy.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
-    document.getElementById('copy-result-new').innerHTML='<div class="copy-result">'+html+'</div>';
+    document.getElementById('copy-result-new').innerHTML='<div class="copy-result">'+data.copy+'</div>';
     loadCopyHistory();
   }catch(e){document.getElementById('copy-result-new').innerHTML='<span class="msg-error">'+e.message+'</span>';}
   finally{btn.disabled=false;btn.textContent='Generar copy';}
