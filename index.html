@@ -135,6 +135,11 @@
   <div id="tab-posts" class="tab-content active">
     <div class="toolbar">
       <button class="btn btn-gold btn-sm" onclick="syncPosts()">Sincronizar IG</button>
+      <select id="media-filter" onchange="loadPosts()">
+        <option value="all">Todo el contenido</option>
+        <option value="reels">Solo Reels</option>
+        <option value="images">Solo Imagenes</option>
+      </select>
       <select id="sort-posts" onchange="loadPosts()">
         <option value="likes">Mas likes</option>
         <option value="comments">Mas comentarios</option>
@@ -170,6 +175,11 @@
   <!-- ANALISIS -->
   <div id="tab-analisis" class="tab-content">
     <div class="toolbar">
+      <select id="analisis-source">
+        <option value="all">Todo el contenido</option>
+        <option value="reels">Solo Reels</option>
+        <option value="images">Solo Imagenes</option>
+      </select>
       <button class="btn btn-gold" onclick="analyzePatterns()">Generar analisis</button>
       <span style="color:var(--text-dim);font-size:0.8rem">Prioriza copy manual sobre caption</span>
     </div>
@@ -181,6 +191,12 @@
     <div class="copy-form">
       <label>Tema o simbolo</label>
       <input type="text" id="copy-tema" placeholder="Ej: Metatron, Vegvisir, Luna llena..."/>
+      <label>Basar en</label>
+      <select id="copy-source">
+        <option value="all">Todo el contenido</option>
+        <option value="reels">Solo Reels</option>
+        <option value="images">Solo Imagenes</option>
+      </select>
       <label>Formato</label>
       <select id="copy-formato">
         <option value="feed">Feed (foto/carrusel)</option>
@@ -269,7 +285,8 @@ async function loadPosts(){
   var df=document.getElementById('date-from').value;
   var dt=document.getElementById('date-to').value;
   var se=document.getElementById('show-excluded').checked;
-  var params='sort='+sort+(se?'&show_excluded=1':'')+(df?'&date_from='+df:'')+(dt?'&date_to='+dt:'');
+  var mt=document.getElementById('media-filter').value;
+  var params='sort='+sort+(se?'&show_excluded=1':'')+(df?'&date_from='+df:'')+(dt?'&date_to='+dt:'')+(mt!=='all'?'&media_type='+mt:'');
   try{
     var res=await fetch(API+'/api/posts?'+params);
     allPosts=await res.json();
@@ -416,7 +433,8 @@ async function loadSavedAnalysis(){
 async function analyzePatterns(){
   var btn=event.target;btn.disabled=true;btn.innerHTML='Analizando <span class="loader"></span>';
   try{
-    var res=await fetch(API+'/api/analyze-patterns',{method:'POST'});
+    var src=document.getElementById('analisis-source').value;
+    var res=await fetch(API+'/api/analyze-patterns',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({media_type:src==='all'?null:src})});
     var data=await res.json();
     if(data.error)throw new Error(data.error);
     var html=data.analysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
@@ -449,7 +467,8 @@ async function generateCopy(){
   var btn=event.target;btn.disabled=true;btn.innerHTML='Generando <span class="loader"></span>';
   document.getElementById('copy-result-new').innerHTML='';
   try{
-    var res=await fetch(API+'/api/generate-copy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:tema,formato:formato})});
+    var csrc=document.getElementById('copy-source').value;
+    var res=await fetch(API+'/api/generate-copy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:tema,formato:formato,media_type:csrc==='all'?null:csrc})});
     var data=await res.json();
     if(data.error)throw new Error(data.error);
     document.getElementById('copy-result-new').innerHTML='<div class="copy-result">'+data.copy+'</div>';
