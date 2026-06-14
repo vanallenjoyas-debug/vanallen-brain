@@ -406,7 +406,7 @@ async function toggleExclude(id,exclude){
 // CARGAR COPY — lista rápida
 async function loadCopyLoadList(){
   try{
-    var res=await fetch(API+'/api/posts?sort=likes');
+    var res=await fetch(API+'/api/posts?sort=likes&media_type=reels');
     var posts=await res.json();
     posts=posts.filter(function(p){return !p.excluded;}).slice(0,50);
     if(!posts.length){document.getElementById('copy-load-list').innerHTML='<div class="empty">No hay posts activos.</div>';return;}
