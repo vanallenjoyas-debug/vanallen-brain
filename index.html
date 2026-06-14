@@ -212,6 +212,31 @@
     <div id="copy-history"></div>
   </div>
 
+
+  <!-- GENERAR GANCHO -->
+  <div id="tab-gancho" class="tab-content">
+    <div class="copy-form">
+      <label>Tema o simbolo</label>
+      <input type="text" id="gancho-tema" placeholder="Ej: Metatron, Vegvisir, Luna llena..."/>
+      <label>Basar en</label>
+      <select id="gancho-source">
+        <option value="all">Todo el contenido</option>
+        <option value="reels">Solo Reels</option>
+        <option value="images">Solo Imagenes</option>
+      </select>
+      <label>Formato</label>
+      <select id="gancho-formato">
+        <option value="reel">Reel</option>
+        <option value="feed">Feed (foto/carrusel)</option>
+        <option value="story">Story</option>
+      </select>
+      <button class="btn btn-gold" onclick="generateGancho()">Generar ganchos</button>
+    </div>
+    <div id="gancho-result-new"></div>
+    <div class="section-title">HISTORIAL</div>
+    <div id="gancho-history"></div>
+  </div>
+
   <!-- COMENTARIOS -->
   <div id="tab-comentarios" class="tab-content">
     <div class="toolbar">
@@ -246,6 +271,7 @@ function showApp(){
   loadCopyHistory();
   loadComments();
   loadSavedCommentsAnalysis();
+  loadGanchoHistory();
 }
 function logout(){localStorage.removeItem('va_session');location.reload();}
 
@@ -262,7 +288,7 @@ document.getElementById('pwd-input').addEventListener('keydown',function(e){if(e
 if(sessionToken)showApp();
 
 function switchTab(name){
-  var names=['posts','cargar-copy','analisis','copy','comentarios'];
+  var names=['posts','cargar-copy','analisis','copy','gancho','comentarios'];
   document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',names[i]===name);});
   document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active');});
   document.getElementById('tab-'+name).classList.add('active');
@@ -389,14 +415,14 @@ async function loadCopyLoadList(){
       return '<div class="copy-load-item">'+
         '<div class="cli-left">'+
           '<div class="cli-meta">#'+(i+1)+' &mdash; '+(p.like_count||0).toLocaleString()+' likes &mdash; '+new Date(p.timestamp).toLocaleDateString('es-AR')+
-            (hasCopy?' &mdash; <span class="copy-badge-list">copy guardado</span>':'')+
+            (p.gancho&&p.gancho.trim().length>0?' &mdash; <span class="copy-badge-list">gancho guardado</span>':'')+
             (p.permalink?' &mdash; <a class="ig-link" href="'+p.permalink+'" target="_blank">Ver en IG ↗</a>':'')+
           '</div>'+
           '<div class="cli-caption" id="cli-cap-'+p.id+'">'+(p.caption||'<em style="color:var(--text-dim)">Sin caption</em>')+'</div>'+
           (p.caption&&p.caption.length>100?'<button class="btn btn-outline btn-sm" style="margin-top:5px" onclick="toggleCliCap(\''+p.id+'\')">Ver mas</button>':'')+
         '</div>'+
         '<div class="cli-right">'+
-          '<textarea id="cli-copy-'+p.id+'" placeholder="Pega el guion o copy completo...">'+(p.manual_copy||'')+'</textarea>'+
+          '<textarea id="cli-copy-'+p.id+'" placeholder="Pega el gancho (primera linea del reel)...">'+(p.gancho||'')+'</textarea>'+
           '<div class="cli-actions">'+
             '<button class="btn btn-gold btn-sm" onclick="saveCopyList(\''+p.id+'\')">Guardar</button>'+
             '<span id="cli-saved-'+p.id+'" style="font-size:0.76rem"></span>'+
@@ -413,7 +439,7 @@ async function saveCopyList(id){
   var copy=document.getElementById('cli-copy-'+id).value;
   var span=document.getElementById('cli-saved-'+id);
   try{
-    await fetch(API+'/api/posts/'+id+'/copy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({copy:copy})});
+    await fetch(API+'/api/posts/'+id+'/gancho',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({gancho:copy})});
     span.innerHTML='<span class="msg-ok">✓ Guardado</span>';
     setTimeout(function(){span.textContent='';},2000);
   }catch(e){span.innerHTML='<span class="msg-error">Error</span>';}
@@ -538,6 +564,39 @@ async function analyzeComments(){
       '<div class="result-box" style="margin-bottom:14px">'+html+'</div>';
   }catch(e){document.getElementById('comments-analysis').innerHTML='<span class="msg-error">'+e.message+'</span>';}
   finally{btn.disabled=false;btn.textContent='Analizar con Claude';}
+}
+
+// GENERAR GANCHO
+async function loadGanchoHistory(){
+  try{
+    var res=await fetch(API+'/api/gancho-history');
+    var items=await res.json();
+    if(!items.length){document.getElementById('gancho-history').innerHTML='<div class="empty">Todavia no generaste ningun gancho</div>';return;}
+    document.getElementById('gancho-history').innerHTML=items.map(function(item){
+      return '<div class="copy-history-item" onclick="this.classList.toggle(\'expanded\')">'+
+        '<div class="ch-meta">'+item.tema+' ('+item.formato+') — '+new Date(item.updated_at).toLocaleString('es-AR')+'</div>'+
+        '<div class="ch-preview">'+item.result+'</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){}
+}
+
+async function generateGancho(){
+  var tema=document.getElementById('gancho-tema').value.trim();
+  if(!tema)return;
+  var formato=document.getElementById('gancho-formato').value;
+  var src=document.getElementById('gancho-source').value;
+  var btn=event.target;btn.disabled=true;btn.innerHTML='Generando <span class="loader"></span>';
+  document.getElementById('gancho-result-new').innerHTML='';
+  try{
+    var res=await fetch(API+'/api/generate-gancho',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tema:tema,formato:formato,media_type:src==='all'?null:src})});
+    var data=await res.json();
+    if(data.error)throw new Error(data.error);
+    var html=data.result.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    document.getElementById('gancho-result-new').innerHTML='<div class="copy-result">'+html+'</div>';
+    loadGanchoHistory();
+  }catch(e){document.getElementById('gancho-result-new').innerHTML='<span class="msg-error">'+e.message+'</span>';}
+  finally{btn.disabled=false;btn.textContent='Generar ganchos';}
 }
 </script>
 </body>
